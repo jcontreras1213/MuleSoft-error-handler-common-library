@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="error-default-test.xml" />
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_DEFAULT_DEFAULT" doc:id="6eb04bae-d8e8-4683-b11e-f576c21e67c3" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="f762ca89-8d8f-4eb3-be6b-eacc5535ea33">
+				<munit:variables >
+					<munit:variable key="errorsOverrideDefault" value="#[false as Boolean]" />
+					<munit:variable key="errorsExtendDefault" value="#[false as Boolean]" />
+					<munit:variable key="errorNamespace" value="DEFAULT" />
+					<munit:variable key="errorIdentifier" value="DEFAULT" />
+				</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when No Extension" doc:id="a95db9bd-a593-44b0-b942-1087c705de09" processor="email:send">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="d1020d0a-3644-4508-9296-04ef4843e3d8" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerDefault" doc:id="31dfce0c-2d34-447b-8853-429d78b76611" name="ErrorHandlerDefault" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="d21b0ece-ceaf-4d1d-a46e-7ec2d9c01106" actual="#[payload.Error.Message]" expected="An error has occurred with the integration." message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="NO_OVERRIDES_EXTENSION_DEFAULT_DEFAULT" doc:id="287a0cdb-b564-4a98-a84a-969188bdb023" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="4aae7329-daaf-4ef1-828a-ab42f4d0abfd">
+				<munit:variables >
+					<munit:variable key="errorsOverrideDefault" value="#[false as Boolean]" />
+					<munit:variable key="errorsExtendDefault" value="#[true as Boolean]" />
+					<munit:variable key="errorNamespace" value="DEFAULT" />
+					<munit:variable key="errorIdentifier" value="DEFAULT" />
+					<munit:variable key="uniqueIdentifer" value="Default_Error" />
+					<munit:variable key="extendDefaultErrorHandler" value="exampleDefaultExtensionFlow" />
+				</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock Extension" doc:id="d43ce556-1661-4838-85b3-4f8afe5a3ff3" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Invoke extension" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="8f12845a-772f-464d-a430-eb48900ce715" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-call flow="exampleDefaultExtensionFlow" />
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when Extension" doc:id="021ae6e1-d27f-4372-8e67-da09542c8be8" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="b2b444b7-a2a2-43f0-b06f-144af4b95045" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerDefault" doc:id="1d447898-0930-4569-b747-2f53d3bccc5e" name="ErrorHandlerDefault" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="31a3b19d-167f-4f87-b61a-51f11bc3df27" actual="#[payload]" expected="An error has occurred with the integration.: Default_Error" message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="OVERRIDES_NO_EXTENSION_DEFAULT_DEFAULT" doc:id="903d1431-47ef-4e2e-82a9-8b407147aac8" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="a1b9969a-825b-4362-89ba-41be2d9fe6a2">
+				<munit:variables >
+					<munit:variable key="errorsOverrideDefault" value="#[true as Boolean]" />
+					<munit:variable key="errorsExtendDefault" value="#[false as Boolean]" />
+					<munit:variable key="errorNamespace" value="DEFAULT" />
+					<munit:variable key="errorIdentifier" value="DEFAULT" />
+					<munit:variable key="uniqueIdentifer" value="Default_Error" />
+					<munit:variable key="customDefaultErrorHandler" value="exampleDefaultCustomFlow" />
+				</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock Override" doc:id="ec11ac06-ed3c-46cd-9a49-db51d0aeaca1" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Invoke extension" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="8f12845a-772f-464d-a430-eb48900ce715" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-call flow="exampleDefaultCustomFlow" />
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerDefault" doc:id="9528a4fc-cca2-4909-89f7-47a41a219b16" name="ErrorHandlerDefault" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="bd0144ab-dfe0-4027-9735-5d53df267a9e" actual="#[payload]" expected="Default_Error" message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<flow name="exampleDefaultExtensionFlow" doc:id="c4a28660-5549-4557-b74a-1fe022937254" >
+		<set-payload value='#[payload ++ ": " ++ vars.uniqueIdentifer as String]' doc:name="Set Payload" doc:id="c9d8a43f-cfa2-4e8b-b813-875e2b20ad67" />
+	</flow>
+	<flow name="exampleDefaultCustomFlow" doc:id="f092e3a2-197f-452f-8be3-db715b6e0682" >
+		<set-payload value="#[vars.uniqueIdentifer as String]" doc:name="Set Payload" doc:id="96536813-27f2-4a02-9b23-e1604337342d" />
+	</flow>
+
+
+</mule>

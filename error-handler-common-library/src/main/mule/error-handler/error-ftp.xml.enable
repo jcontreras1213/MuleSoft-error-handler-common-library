@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<flow name="ErrorHandlerFTP" doc:id="054f5d1b-53eb-4b30-8136-fdd22b221daa" >
+		<logger level="DEBUG" doc:name="Debug Logger" doc:id="dc31bca9-fa99-406b-bff3-b725c1398cb3" message="In ErrorHandlerFTP" />
+		<choice doc:name="Override Standard FTP Error Handler?" doc:id="c680c3ea-5f1b-45e0-890d-8d2886194c44" >
+			<when expression="#[Mule::p('errors.override.ftp') == 'true']">
+				<ee:transform doc:name="Call custom ftp error handler" doc:id="49d1ae5a-cff8-4b5c-a821-bc3033feeebb" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+Mule::lookup('CustomFTPErrorHandler', {})]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise>
+				<ee:transform doc:name="Set error variables" doc:id="4f20a85a-94c7-48fe-8e00-0844f2f3d1d0" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+var response = Mule::p('errors.response.ftp.' ++ error.errorType.identifier)
+---
+if (response != null)
+	read(response as String, 'application/json')
+else	
+	read(Mule::p('errors.response.ftp.DEFAULT') as String, 'application/json')
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<choice doc:name="Extend Standard FTP Error Handler?" doc:id="d5739e42-1bf1-4868-9556-2ecb213d1f2b" >
+					<when expression="#[Mule::p('errors.extend.ftp') == 'true']">
+						<ee:transform doc:name="Invoke extension" doc:id="861222de-6f36-48e8-9be7-beeb4a1f4e2a" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+Mule::lookup('ExtendFTPErrorHandler', payload)
+]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+					</when>
+					<otherwise>
+						<logger level="DEBUG" doc:name="Debug Logger" doc:id="2fa38bf9-3fef-4e39-b21d-2b0e159537fc" message="Default FTP error" />
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+	</flow>	
+</mule>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+	<flow name="ErrorHandlerHttp" doc:id="21ef7023-80aa-4e1d-8a44-0d3f1369e543" >
+		<logger level="DEBUG" doc:name="Debug Logger" doc:id="c1a710d8-6dae-4e6d-8e8c-7a1e4fe27ea7" message="In ErrorHandlerHttp Debug"/>
+		<choice doc:name="Override Standard Http Error Handler?" doc:id="c25f20cd-4c46-48ed-a954-dadc11fa8b1e" >
+			<when expression="#[vars.errorCode != null]">
+				<logger level="DEBUG" doc:name="Debug Logger" doc:id="46dd96b5-4c3e-418d-afcc-6e3450fe51c6" message="Propagating Error"/>
+				<ee:transform doc:name="Transform Message" doc:id="8c8d4dbb-138f-4ff8-b368-2df52c75fbce">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{ 
+	errorMessage: vars.errorMessage,
+	httpStatus: vars.errorCode
+} ]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<when expression="#[vars.errorsOverrideHttp == true]">
+				<logger level="DEBUG" doc:name="Override Message" doc:id="8d29510d-39c8-4041-a644-44f378cfb86a" message="Override HTTP Error Handler" />
+				<flow-ref doc:name="Call custom HTTP error handler" doc:id="f1d6e5f0-e0da-4993-bb91-9aa511fbe449" name="#[vars.customHTTPErrorHandler]" />
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Set error variables" doc:id="f07b2b16-686d-4e2e-9ef2-a02b9781bb71" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+Mule::p('errors.response.HTTP.' ++ (vars.errorIdentifier default 'DEFAULT')) as String]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<choice doc:name="Extend Standard Http Error Handler?" doc:id="67e2b3be-3a10-4dd1-ab5a-0997b41142e5" >
+					<when expression="#[vars.errorsExtendHttp == true]">
+						<logger level="DEBUG" doc:name="Extend Message" doc:id="f56f77ff-e60c-4627-8cf1-0b25d6aa0417" message="Extend HTTP Error Handler" />
+						<flow-ref doc:name="Invoke extension" doc:id="67dfd74f-fbbd-4611-b9b9-ffd78021443e" name="#[vars.extendHTTPErrorHandler]" />
+						<email:send doc:name="Send" doc:id="38bd7157-f29a-4bd2-9b75-05cb131b4b7f" config-ref="Email_SMTP_Common_Error_Handler" fromAddress="#[vars.emailFromAdd]" subject="#[vars.errorErrorSubject]" toAddresses="#[vars.emailToAdd]" ccAddresses="#[vars.emailCCAdd]">
+					<email:body contentType="text/plain" encoding="UTF-8" />
+					<email:attachments><![CDATA[#[vars.emailAttachments]]]></email:attachments>
+				</email:send>
+					</when>
+					<otherwise>
+						<ee:transform doc:name="Set Error Object" doc:id="04251f91-4e55-45b5-a949-2706a80a1f4f" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[output application/json
+---
+{
+	Error: {
+		"ErrorIdentifier": vars.errorNamespace as String default 'MULE' ++ ':' ++ vars.errorIdentifier as String default 'UNKNOWN',
+		"TimeStamp": now(),
+		"Message": payload,
+	}
+}]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+						<logger level="DEBUG" doc:name="Debug Logger" doc:id="95e948c0-e6ef-4dd4-9096-63c1259161bd" message="#[payload]" />
+						<email:send doc:name="Send" doc:id="8509a2d3-f763-4328-bb99-893a832335b6" config-ref="Email_SMTP_Common_Error_Handler" fromAddress="#[vars.emailFromAdd]" subject="#[vars.errorErrorSubject]" toAddresses="#[vars.emailToAdd]" ccAddresses="#[vars.emailCCAdd]" >
+							<email:body contentType="text/plain" encoding="UTF-8" />
+							<email:attachments ><![CDATA[#[vars.emailAttachments]]]></email:attachments>
+						</email:send>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

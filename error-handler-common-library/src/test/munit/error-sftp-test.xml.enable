@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<munit:config name="error-sftp-test.xml" />
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_SFTP_FILE_LOCK" doc:id="33774a46-9da1-4045-83d3-cd1dff30e635" description="Test">
+		<munit:behavior >
+			<munit:set-event doc:name="Set Event" doc:id="8d43bd88-e173-4a57-b7f4-3606b90db0fb" >
+				<munit:variables >
+					<munit:variable key="errorsOverrideSftp" value="#[false as Boolean]" />
+					<munit:variable key="errorsExtendSftp" value="#[false as Boolean]" />
+					<munit:variable key="errorNamespace" value="SFTP" />
+					<munit:variable key="errorIdentifier" value="FILE_LOCK" />
+				</munit:variables>
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when No Extension" doc:id="70b8e72e-cf04-4199-9ae5-d669a240f2fe" processor="email:send">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="cf216c75-148b-4ef3-9b80-e46e9642f060" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to ErrorHandlerSFTP" doc:id="d29b2ce2-c555-4896-809e-e330169abc58" name="ErrorHandlerSFTP"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="36068b8a-1f0e-481f-aa1f-6f3af475fd32" actual='#[payload.Error.Message]' expected="This file is currently being modified by another user" message="The error messages do not match"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_SFTP_RETRY_EXHAUSTED" doc:id="77cad254-9249-419b-9480-1561360fc6fb" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="7581b09d-4f2d-4a74-b305-62637aae030a">
+				<munit:variables >
+					<munit:variable key="errorsOverrideSftp" value="#[false as Boolean]" />
+					<munit:variable key="errorsExtendSftp" value="#[false as Boolean]" />
+					<munit:variable key="errorNamespace" value="SFTP" />
+					<munit:variable key="errorIdentifier" value="RETRY_EXHAUSTED" />
+				</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when No Extension" doc:id="e16e986f-2caa-42f4-bbc4-99b4595da7e5" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="cf216c75-148b-4ef3-9b80-e46e9642f060" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerSFTP" doc:id="06fa4e59-1172-4c52-ba55-d4d7b82a2346" name="ErrorHandlerSFTP" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="7694536e-d459-491a-8ebf-a7f4ee9607bc" actual="#[payload.Error.Message]" expected="The amount of retries for SFTP processing have been exceeded." message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_SFTP_ILLEGAL_PATH" doc:id="ebaac728-e79e-47e6-9447-308fb725868e" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="ac14797b-ca5e-495c-b27f-cd595503cc83">
+				<munit:variables >
+					<munit:variable key="errorsOverrideSftp" value="#[false as Boolean]" />
+					<munit:variable key="errorsExtendSftp" value="#[false as Boolean]" />
+					<munit:variable key="errorNamespace" value="SFTP" />
+					<munit:variable key="errorIdentifier" value="ILLEGAL_PATH" />
+				</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when No Extension" doc:id="fcbe1913-e4fe-4ea1-8eeb-8ecef6601506" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="cf216c75-148b-4ef3-9b80-e46e9642f060" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerSFTP" doc:id="e8773bcd-d7b5-4c55-969a-9717dfaab954" name="ErrorHandlerSFTP" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="bc41aded-17a8-4fd8-9006-fbfff1cd8494" actual="#[payload.Error.Message]" expected="The SFTP path specified is illegal." message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_SFTP_FILE_ALREADY_EXISTS" doc:id="c3faa7e8-fe4e-4166-8553-1994851ffd0c" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="535ec671-23d9-4bc2-b18b-e6bf1f2d280b">
+				<munit:variables >
+					<munit:variable key="errorsOverrideSftp" value="#[false as Boolean]" />
+					<munit:variable key="errorsExtendSftp" value="#[false as Boolean]" />
+					<munit:variable key="errorNamespace" value="SFTP" />
+					<munit:variable key="errorIdentifier" value="FILE_ALREADY_EXISTS" />
+				</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when No Extension" doc:id="ef076ad6-7645-4096-94a6-49df87d681ae" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="cf216c75-148b-4ef3-9b80-e46e9642f060" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerSFTP" doc:id="255de4ac-e728-4946-8dcd-fa8435866bf2" name="ErrorHandlerSFTP" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="ab41479a-a50e-4143-b38c-0e2ac56ad189" actual="#[payload.Error.Message]" expected="The file already exists within the defined directory." message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_SFTP_CONNECTIVITY" doc:id="6e88fabf-7057-438f-a759-af6d072f2875" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="8132db2a-4480-47d7-bb72-8536cdbc065a">
+				<munit:variables >
+					<munit:variable key="errorsOverrideSftp" value="#[false as Boolean]" />
+					<munit:variable key="errorsExtendSftp" value="#[false as Boolean]" />
+					<munit:variable key="errorNamespace" value="SFTP" />
+					<munit:variable key="errorIdentifier" value="CONNECTIVITY" />
+				</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when No Extension" doc:id="2120bf8d-a425-4a94-a317-b211f40ce93b" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="cf216c75-148b-4ef3-9b80-e46e9642f060" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerSFTP" doc:id="f11f7c02-b258-44e6-a45c-4022444e5e9b" name="ErrorHandlerSFTP" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="95da9781-85ab-4100-922f-902cedee8acf" actual="#[payload.Error.Message]" expected="The SFTP is having connectivity issues." message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_SFTP_ACCESS_DENIED" doc:id="c203682b-0520-4e8b-abc5-82d02e48a57e" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="02737721-5e1b-4655-a38e-9a07016a5542">
+				<munit:variables >
+					<munit:variable key="errorsOverrideSftp" value="#[false as Boolean]" />
+					<munit:variable key="errorsExtendSftp" value="#[false as Boolean]" />
+					<munit:variable key="errorNamespace" value="SFTP" />
+					<munit:variable key="errorIdentifier" value="ACCESS_DENIED" />
+				</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when No Extension" doc:id="4345573f-37fe-484a-a9f9-a39a1d7f368f" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="cf216c75-148b-4ef3-9b80-e46e9642f060" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerSFTP" doc:id="1e7411c4-ef8a-4a7b-b632-5f2ae6463bcf" name="ErrorHandlerSFTP" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="373b7947-af2f-460f-a633-b2e16678175a" actual="#[payload.Error.Message]" expected="The defined user does not have access to this location." message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_SFTP_ILLEGAL_CONTENT" doc:id="a23c7c4b-c25e-4f93-8a39-7dda92d66c37" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="14e7e2a4-861b-429b-a210-bca1c9aeb9af">
+				<munit:variables >
+					<munit:variable key="errorsOverrideSftp" value="#[false as Boolean]" />
+					<munit:variable key="errorsExtendSftp" value="#[false as Boolean]" />
+					<munit:variable key="errorNamespace" value="SFTP" />
+					<munit:variable key="errorIdentifier" value="ILLEGAL_CONTENT" />
+				</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when No Extension" doc:id="404c640c-cc0e-4185-bd19-1d5f0b4c8443" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="cf216c75-148b-4ef3-9b80-e46e9642f060" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerSFTP" doc:id="5d175d0e-8df1-4e8e-9504-701da985377c" name="ErrorHandlerSFTP" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="41be1ee4-fc4d-4278-b6b6-aef1af7f6bca" actual="#[payload.Error.Message]" expected="The content provided is not able to be processed by the SFTP server." message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_SFTP_DEFAULT" doc:id="8cfec4f2-b64e-462a-8470-a69a4a6241a1" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="fc5765ec-4258-4fe6-9f2d-cc6c00359532">
+				<munit:variables >
+					<munit:variable key="errorsOverrideSftp" value="#[false as Boolean]" />
+					<munit:variable key="errorsExtendSftp" value="#[false as Boolean]" />
+					<munit:variable key="errorNamespace" value="SFTP" />
+				</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when No Extension" doc:id="ef8b8508-20cb-4dee-b189-ad31d271699e" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="cf216c75-148b-4ef3-9b80-e46e9642f060" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerSFTP" doc:id="7dad292f-ddec-40c7-b99f-7034924f1f75" name="ErrorHandlerSFTP" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="07738954-91cb-498a-8092-cb3325f7d835" actual="#[payload.Error.Message]" expected="An error has occurred during SFTP processing." message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="NO_OVERRIDES_EXTENSION_SFTP_DEFAULT" doc:id="0d4e07fc-286c-4e9c-9305-2f1e60f27e14" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="da3d0146-b84b-4d98-a200-53ba63191694">
+				<munit:variables >
+					<munit:variable key="errorsOverrideSftp" value="#[false as Boolean]" />
+					<munit:variable key="errorsExtendSftp" value="#[true as Boolean]" />
+					<munit:variable key="errorNamespace" value="SFTP" />
+					<munit:variable key="uniqueIdentifer" value="SFTP_UNIQUE_ID" />
+					<munit:variable key="extendSFTPErrorHandler" value="exampleSFTPExtensionFlow" />
+				</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock Extension" doc:id="41398ea5-c444-41dc-837c-0910a54a0d48" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Invoke extension" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="d9906423-867c-4051-b3c0-16dafedaa4de" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-call flow="exampleSFTPExtensionFlow" />
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when Extension" doc:id="0e2d07b9-b850-4909-87e8-e8a021399ef4" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="9eccb1ad-4d35-4c2e-ae08-732bb5081f0a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerSFTP" doc:id="72a8012b-e674-416f-bba0-c3f157fec61c" name="ErrorHandlerSFTP" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="b62b6b38-b7bc-41ac-9e6c-24255f556833" actual="#[payload]" expected="An error has occurred during SFTP processing.: SFTP_UNIQUE_ID" message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="OVERRIDES_NO_EXTENSION_SFTP_DEFAULT" doc:id="883a2e82-d2f5-40dd-91ef-c2d16369a247" description="Test">
+			
+		<munit:behavior>
+			<munit:set-event doc:name="Set Event" doc:id="32fdeb1b-ea85-4acd-893b-72c9960c354f">
+				<munit:variables >
+					<munit:variable key="errorsOverrideSftp" value="#[true as Boolean]" />
+					<munit:variable key="errorsExtendSftp" value="#[false as Boolean]" />
+					<munit:variable key="errorNamespace" value="SFTP" />
+					<munit:variable key="uniqueIdentifer" value="SFTP_UNIQUE_ID" />
+					<munit:variable key="customSFTPErrorHandler" value="exampleSFTPCustomFlow" />
+				</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock Custom" doc:id="5907ddb8-bcec-40cf-9606-89e30c00ec14" processor="flow-ref">
+					
+					<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Call custom Salesforce error handler" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="1a9fb232-b68a-4e2d-a520-606947aab1d6" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-call flow="exampleSFTPCustomFlow" />
+				</munit-tools:mock-when>
+			</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to ErrorHandlerSFTP" doc:id="be3433dd-65cb-4271-9d54-a4942425df1d" name="ErrorHandlerSFTP" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="7fbd2b0a-58ff-4317-a210-e2aa9da57c04" actual="#[payload]" expected="SFTP_UNIQUE_ID" message="The error messages do not match" />
+		</munit:validation>
+		</munit:test>
+	<flow name="exampleSFTPExtensionFlow" doc:id="b848d08d-d534-4ed3-9e0a-537ebfb3b30d" >
+		<set-payload value='#[payload ++ ": " ++ vars.uniqueIdentifer as String]' doc:name="Set Payload" doc:id="9ab188b1-b5fa-456b-8591-0625d7ffdc7b" />
+	</flow>
+	<flow name="exampleSFTPCustomFlow" doc:id="450560e1-b1b3-47ae-9ef6-118716eb442b" >
+		<set-payload value="#[vars.uniqueIdentifer as String]" doc:name="Set Payload" doc:id="3e5a3720-616a-4504-84ff-c4cae22177ca" />
+	</flow>
+
+</mule>

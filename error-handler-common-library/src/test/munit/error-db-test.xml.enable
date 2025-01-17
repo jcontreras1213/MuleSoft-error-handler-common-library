@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="error-db-test.xml" />
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_DB_CONNECTIVITY" doc:id="5a3986b7-7922-46e1-afda-04d0f663dbfa" description="Test">
+		<munit:behavior >
+			<munit:set-event doc:name="Set Event" doc:id="45d186ec-6c87-4646-839f-4a7542a75d83" >
+				<munit:variables >
+					<munit:variable key="errorsOverrideDB" value="#[false as Boolean]" />
+					<munit:variable key="errorsExtendDB" value="#[false as Boolean]" />
+					<munit:variable key="errorNamespace" value="DB" />
+					<munit:variable key="errorIdentifier" value="CONNECTIVITY" />
+					<munit:variable key="customDBErrorHandler" value="exampleDBCustomFlow" />
+					<munit:variable key="uniqueIdentifer" value="DB_Error" />
+					<munit:variable key="extendDBErrorHandler" value="exampleDBExtendFlow" />
+				</munit:variables>
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock Email No Extension" doc:id="1013644b-8a29-4e5e-9ee6-a12934ec39c9" processor="email:send">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="4339aab5-d36f-44e7-a09b-94905d6e0097" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to ErrorHandlerDB" doc:id="51922019-5635-4227-860f-a68a911a213a" name="ErrorHandlerDB"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="befbb1cc-f249-47aa-8a62-d5cdaf23fe3c" actual="#[payload.Error.Message]" expected="Connection to the Database has failed" message="The error messages do not match" />
+		</munit:validation>
+	</munit:test>
+	<flow name="exampleDBCustomFlow" doc:id="236d08c0-d254-458f-8519-923c72cab445" >
+		<set-payload value="#[vars.uniqueIdentifer as String]" doc:name="Set Payload" doc:id="12eb10b5-57aa-4676-9621-4444ad86840e" />
+	</flow>
+	<flow name="exampleDBExtensionFlow" doc:id="508cd8ce-218a-4913-972d-17799cd5e585" >
+		<set-payload value='#[payload ++ ": " ++ vars.uniqueIdentifer as String]' doc:name="Set Payload" doc:id="37518663-7509-4e5e-aa11-60a69f092c15" />
+	</flow>
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_DB_QUERY_EXECUTION" doc:id="fc218493-f42e-4919-a829-90499b526143" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="20dd0492-6b3d-4120-ac05-c96f7f009d52">
+				<munit:variables >
+					<munit:variable key="errorsOverrideDB" value="#[false as Boolean]" />
+					<munit:variable key="errorsExtendDB" value="#[false as Boolean]" />
+					<munit:variable key="errorNamespace" value="DB" />
+					<munit:variable key="errorIdentifier" value="QUERY_EXECUTION" />
+					<munit:variable key="customDBErrorHandler" value="exampleDBCustomFlow" />
+					<munit:variable key="uniqueIdentifer" value="DB_Error" />
+					<munit:variable key="extendDBErrorHandler" value="exampleDBExtendFlow" />
+				</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock Email No Extension" doc:id="c51c6345-c92f-4132-af3e-06cb03a4a983" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="4339aab5-d36f-44e7-a09b-94905d6e0097" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerDB" doc:id="d753b35f-c39e-436b-8138-72a2819c69f8" name="ErrorHandlerDB" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="e10a7808-4fd0-47ec-825a-9b1a56e09a52" actual="#[payload.Error.Message]" expected="An issue has occurred with the query call to the database" message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_DB_RETRY_EXHAUSTED" doc:id="9511f5c3-6a8f-4f21-b8ae-bbc04b4ab1ef" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="1b3185a6-6080-4144-bae6-58b8e0ba724e">
+					<munit:variables>
+						<munit:variable key="errorsOverrideDB" value="#[false as Boolean]" />
+						<munit:variable key="errorsExtendDB" value="#[false as Boolean]" />
+						<munit:variable key="errorNamespace" value="DB" />
+						<munit:variable key="errorIdentifier" value="RETRY_EXHAUSTED" />
+						<munit:variable key="customDBErrorHandler" value="exampleDBCustomFlow" />
+						<munit:variable key="uniqueIdentifer" value="DB_Error" />
+						<munit:variable key="extendDBErrorHandler" value="exampleDBExtendFlow" />
+					</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock Email No Extension" doc:id="f8c70cb6-8ea2-446a-8cca-8e896db3f407" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="4339aab5-d36f-44e7-a09b-94905d6e0097" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerDB" doc:id="8eaf0693-b869-4d88-be87-086783a3cb8e" name="ErrorHandlerDB" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="7436a063-f724-4f6f-9a48-e6095f46efb6" actual="#[payload.Error.Message]" expected="The number of retries has been exhausted" message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_DB_BAD_SQL_SYNTAX" doc:id="532ce815-e6cf-493d-abd1-12c91cfa728f" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="4553c629-a7fc-4a43-8483-3393b0b0fe94">
+					<munit:variables>
+						<munit:variable key="errorsOverrideDB" value="#[false as Boolean]" />
+						<munit:variable key="errorsExtendDB" value="#[false as Boolean]" />
+						<munit:variable key="errorNamespace" value="DB" />
+						<munit:variable key="errorIdentifier" value="BAD_SQL_SYNTAX" />
+						<munit:variable key="customDBErrorHandler" value="exampleDBCustomFlow" />
+						<munit:variable key="uniqueIdentifer" value="DB_Error" />
+						<munit:variable key="extendDBErrorHandler" value="exampleDBExtendFlow" />
+					</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock Email No Extension" doc:id="0a2d728b-21d9-4c10-adb1-43b408c4d8c7" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="4339aab5-d36f-44e7-a09b-94905d6e0097" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerDB" doc:id="76e7e34d-55e3-4bb3-bc01-70b4505b725c" name="ErrorHandlerDB" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="796eb0e2-5e7b-485a-bcf9-4ba949058f69" actual="#[payload.Error.Message]" expected="The SQL Syntax used in the call to the database is incorrect" message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_DB_DEFAULT" doc:id="c51b7fc4-7677-4699-85aa-a40b4c1569f3" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="3edc3bd8-1fef-4c7f-bd10-a382b25e3af5">
+				<munit:variables >
+					<munit:variable key="errorsOverrideDB" value="#[false as Boolean]" />
+					<munit:variable key="errorsExtendDB" value="#[false as Boolean]" />
+					<munit:variable key="errorNamespace" value="DB" />
+					<munit:variable key="errorIdentifier" value="DEFAULT" />
+					<munit:variable key="customDBErrorHandler" value="exampleDBCustomFlow" />
+					<munit:variable key="uniqueIdentifer" value="DB_Error" />
+					<munit:variable key="extendDBErrorHandler" value="exampleDBExtendFlow" />
+				</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock Email No Extension" doc:id="348bcdcf-b50a-4518-af55-a0950cfdc49e" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="4339aab5-d36f-44e7-a09b-94905d6e0097" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerDB" doc:id="1cdc429f-51e0-465e-adf6-c13c542f6c14" name="ErrorHandlerDB" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="542d5f21-83ed-4216-87f5-994ce8cf1518" actual="#[payload.Error.Message]" expected="An Error has occurred with the database call." message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="NO_OVERRIDES_EXTENSION_DB_DEFAULT" doc:id="443861c5-6ff8-4f0e-a0f0-116569bd7d9c" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="8b1795e4-e3a9-4c37-acae-f73b4a9067c0">
+					<munit:variables>
+						<munit:variable key="errorsOverrideDB" value="#[false as Boolean]" />
+						<munit:variable key="errorsExtendDB" value="#[true as Boolean]" />
+						<munit:variable key="errorNamespace" value="DB" />
+						<munit:variable key="errorIdentifier" value="DEFAULT" />
+						<munit:variable key="customDBErrorHandler" value="exampleDBCustomFlow" />
+						<munit:variable key="uniqueIdentifer" value="DB_Error" />
+						<munit:variable key="extendDBErrorHandler" value="exampleDBExtendFlow" />
+					</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock Extension" doc:id="e263fe80-2b8d-48e5-b3b6-c17c3423f8c8" processor="flow-ref">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="Invoke extension" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="796dc3dc-4446-4632-bc5a-dbe9515553ce" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-call flow="exampleDBExtensionFlow" />
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Email Extension" doc:id="49cd8b37-809b-4afc-86c1-ff45d3f52fe5" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="41d0c4a6-b0e7-49d7-9a89-7668cc30124f" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerDB" doc:id="3e9e3b92-67f5-4322-9f30-18ef826ea19b" name="ErrorHandlerDB" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="0be80d90-1fde-4902-80be-1b0a7facc9b7" actual="#[payload]" expected="An Error has occurred with the database call.: DB_Error" message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="OVERRIDES_NO_EXTENSION_DB_DEFAULT" doc:id="468310a8-f2e4-47d5-a5be-83d7926ca876" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="ae42a554-4a78-47fe-8993-e245a6f71a1f">
+					<munit:variables>
+						<munit:variable key="errorsOverrideDB" value="#[true as Boolean]" />
+						<munit:variable key="errorsExtendDB" value="#[false as Boolean]" />
+						<munit:variable key="errorNamespace" value="DB" />
+						<munit:variable key="errorIdentifier" value="DEFAULT" />
+						<munit:variable key="customDBErrorHandler" value="exampleDBCustomFlow" />
+						<munit:variable key="uniqueIdentifer" value="DB_Error" />
+						<munit:variable key="extendDBErrorHandler" value="exampleDBExtendFlow" />
+					</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock Override" doc:id="0d569dff-1266-4f73-8b52-3a4a6913f3b5" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Call custom Salesforce error handler" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="1a9fb232-b68a-4e2d-a520-606947aab1d6" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-call flow="exampleDBCustomFlow" />
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerDB" doc:id="c116ae41-1f0c-4855-ab0a-e0fedf965d6b" name="ErrorHandlerDB" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="402fc7a7-cdc4-4f7d-a328-7ff1736d9b55" actual="#[payload]" expected="DB_Error" message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+
+</mule>

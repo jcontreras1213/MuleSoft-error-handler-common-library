@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="error-html-test.xml" />
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_ERROR_CODE_HTTP_UNSUPPORTED_MEDIA_TYPE" doc:id="fe72c8e3-4b6e-4970-aeab-4a8b9e602987" description="Test">
+		<munit:behavior>
+			<munit:set-event doc:name="Set Event" doc:id="bd0115a6-be19-4481-a7f1-63dc47580917" >
+				<munit:variables >
+					<munit:variable key="errorsOverrideDefault" value="#[false as Boolean]" />
+					<munit:variable key="errorsExtendDefault" value="#[false as Boolean]" />
+					<munit:variable key="errorNamespace" value="HTTP" />
+					<munit:variable key="errorIdentifier" value="UNSUPPORTED_MEDIA_TYPE" />
+					<munit:variable key="errorCode" value="500" />
+					<munit:variable key="errorMessage" value="A 500 error has occurred " />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to ErrorHandlerHttp" doc:id="bb24eb6b-e332-4e53-9ea5-c84e403e4d32" name="ErrorHandlerHttp"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="4ae65ad9-5d2b-4f7c-ae05-fe22aab067bb" actual="#[payload]" expected="A 500 error has occurred " message="The errors do not match."/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_ERROR_CODE_HTTP_DEFAULT" doc:id="f3cb075f-2de6-4e68-9d9e-940b2816d60d" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="79c22cb6-c389-4fb0-a042-7fb60db88d76">
+				<munit:variables >
+					<munit:variable key="errorsOverrideDefault" value="#[false as Boolean]" />
+					<munit:variable key="errorsExtendDefault" value="#[false as Boolean]" />
+					<munit:variable key="errorNamespace" value="HTTP" />
+					<munit:variable key="errorIdentifier" value="DEFAULT" />
+				</munit:variables>
+				</munit:set-event>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerHttp" doc:id="553b4f40-ea77-4fb8-8922-2b7d86000ab2" name="ErrorHandlerHttp" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="1abbd8fb-74f7-4f7a-9926-83da57766aaa" actual="#[payload]" expected="A 500 error has occurred " message="The errors do not match." />
+			</munit:validation>
+		</munit:test>
+
+</mule>

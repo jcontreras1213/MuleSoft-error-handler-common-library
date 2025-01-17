@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="error-salesforce-test.xml" />
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_SALESFORCE_LIMIT_EXCEEDED" doc:id="c3bd2b16-e871-4903-9c93-3acf14f667a0" description="Test">
+		<munit:behavior >
+			<munit:set-event doc:name="Set Event" doc:id="cd4b2541-7f12-4e42-9549-427f265db9a7" >
+				<munit:variables >
+					<munit:variable key="errorsOverrideSalesforce" value="#[false as Boolean]" />
+					<munit:variable key="errorsExtendSalesforce" value="#[false as Boolean]" />
+					<munit:variable key="errorNamespace" value="SALESFORCE" />
+					<munit:variable key="errorIdentifier" value="LIMIT_EXCEEDED" />
+				</munit:variables>
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when No Extension" doc:id="fa0d93bc-28bb-4d2d-80ac-e45ad9d43c74" processor="email:send">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="83f089a8-0358-4c51-a1ab-368c16af5375" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to ErrorHandlerSalesforce" doc:id="6f5c8436-2e8a-4a4e-bdb7-2211dc7e478d" name="ErrorHandlerSalesforce"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="5f4534d6-9353-4e1f-a1a9-dc87293876f5" actual='#[payload.Error.Message]' expected="The amount of requests to Salesforce has exceeded the api limit." message="The error messages do not match"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_SALESFORCE_CONNECTIVITY" doc:id="7c313407-877d-4bb4-9cd7-673769515a4b" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="f0848555-6fd2-4f2b-a0fd-56b4ee00d072">
+					<munit:variables>
+						<munit:variable key="errorsOverrideSalesforce" value="#[false as Boolean]" />
+						<munit:variable key="errorsExtendSalesforce" value="#[false as Boolean]" />
+						<munit:variable key="errorNamespace" value="SALESFORCE" />
+						<munit:variable key="errorIdentifier" value="CONNECTIVITY" />
+					</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when No Extension" doc:id="4e967b5c-6fbd-47ad-922e-c30c8c4d226e" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="83f089a8-0358-4c51-a1ab-368c16af5375" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerSalesforce" doc:id="43c8d516-f2ba-4b49-a5e7-a39d63be3e3f" name="ErrorHandlerSalesforce" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="4a327000-8a48-472c-843d-b30ba84725a5" actual="#[payload.Error.Message]" expected="There are issues connecting to Salesforce with the provided authentication." message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_SALESFORCE_INVALID_RESPONSE" doc:id="f03c4f9c-bacf-4e03-8ac1-f7f603147051" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="57f0b5af-7990-4e54-85be-93c14be899c9">
+					<munit:variables>
+						<munit:variable key="errorsOverrideSalesforce" value="#[false as Boolean]" />
+						<munit:variable key="errorsExtendSalesforce" value="#[false as Boolean]" />
+						<munit:variable key="errorNamespace" value="SALESFORCE" />
+						<munit:variable key="errorIdentifier" value="INVALID_RESPONSE" />
+					</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when No Extension" doc:id="c5c4e5e8-8212-4c70-ac37-78874f4d9675" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="83f089a8-0358-4c51-a1ab-368c16af5375" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerSalesforce" doc:id="df5d2401-74ce-463c-9555-886614ac368c" name="ErrorHandlerSalesforce" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="5162e5ad-db4c-4b2f-b866-0523a13baa11" actual="#[payload.Error.Message]" expected="An invalid resposne was received from Salesforce." message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_SALESFORCE_RETRY_EXHAUSTED" doc:id="3e361a9c-7722-4c2f-b0f7-a6d9bf2e7afc" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="503fa238-ca74-4c77-a5c2-430afeb6366c">
+					<munit:variables>
+						<munit:variable key="errorsOverrideSalesforce" value="#[false as Boolean]" />
+						<munit:variable key="errorsExtendSalesforce" value="#[false as Boolean]" />
+						<munit:variable key="errorNamespace" value="SALESFORCE" />
+						<munit:variable key="errorIdentifier" value="RETRY_EXHAUSTED" />
+					</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when No Extension" doc:id="c1931514-daef-49e0-9966-bc7c1c6e4bb2" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="83f089a8-0358-4c51-a1ab-368c16af5375" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerSalesforce" doc:id="a945934a-065c-48f3-8f3e-b8e337e13234" name="ErrorHandlerSalesforce" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="d76c32b9-70d0-40d1-acdf-80e8aa2ac039" actual="#[payload.Error.Message]" expected="The amount of retries have been exhausted." message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_SALESFORCE_TIMEOUT" doc:id="2b5dc9dc-476c-4f75-9c4e-0c863969acc3" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="d1fabcf8-0ee0-4195-b98f-1212ea2a79eb">
+					<munit:variables>
+						<munit:variable key="errorsOverrideSalesforce" value="#[false as Boolean]" />
+						<munit:variable key="errorsExtendSalesforce" value="#[false as Boolean]" />
+						<munit:variable key="errorNamespace" value="SALESFORCE" />
+						<munit:variable key="errorIdentifier" value="TIMEOUT" />
+					</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when No Extension" doc:id="70ac0bb3-1ab1-43d6-b12f-f57de688f455" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="83f089a8-0358-4c51-a1ab-368c16af5375" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerSalesforce" doc:id="1adc08a1-0fab-44a7-9534-e3683cb2990d" name="ErrorHandlerSalesforce" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="fbf77f95-101d-405b-b9bd-b164957bcb2b" actual="#[payload.Error.Message]" expected="The Salesforce connection has timed out." message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_SALESFORCE_MUTUAL_AUTHENTICATION_FAILED" doc:id="bea03d7a-127a-47ff-a2ca-0518f9a37152" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="568af375-3fbb-495f-802b-19e0ee444cbe">
+					<munit:variables>
+						<munit:variable key="errorsOverrideSalesforce" value="#[false as Boolean]" />
+						<munit:variable key="errorsExtendSalesforce" value="#[false as Boolean]" />
+						<munit:variable key="errorNamespace" value="SALESFORCE" />
+						<munit:variable key="errorIdentifier" value="MUTUAL_AUTHENTICATION_FAILED" />
+					</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when No Extension" doc:id="f32b0881-220c-4f91-9891-c7e868c144bb" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="83f089a8-0358-4c51-a1ab-368c16af5375" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerSalesforce" doc:id="4f196dcc-4b59-4de1-b95c-6e92a7f9b446" name="ErrorHandlerSalesforce" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="df346fe5-18db-4be5-b54d-7fd68fbdc634" actual="#[payload.Error.Message]" expected="The session could not be authenticated for use with the Salesforce REST API." message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_SALESFORCE_NOT_FOUND" doc:id="19578ef1-231a-4fcb-b2c1-ba27b701cbc7" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="c9543f04-d61a-4f80-8473-93ce13b1ffba">
+					<munit:variables>
+						<munit:variable key="errorsOverrideSalesforce" value="#[false as Boolean]" />
+						<munit:variable key="errorsExtendSalesforce" value="#[false as Boolean]" />
+						<munit:variable key="errorNamespace" value="SALESFORCE" />
+						<munit:variable key="errorIdentifier" value="NOT_FOUND" />
+					</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when No Extension" doc:id="30495b98-7c2e-4dc7-a6fa-896f690d0d81" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="83f089a8-0358-4c51-a1ab-368c16af5375" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerSalesforce" doc:id="4fd4e7f0-c252-42a0-b8e2-f1e87986890b" name="ErrorHandlerSalesforce" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="da8083d3-b680-4ac3-bdb7-5736d16c9bbd" actual="#[payload.Error.Message]" expected="The Salesforce instance was not found." message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="NO_OVERRIDES_NO_EXTENSION_SALESFORCE_INVALID_INPUT" doc:id="a8b19e5e-818f-4434-9cbe-6f29b0057028" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="355706b8-3858-4050-9814-130283cfbd73">
+					<munit:variables>
+						<munit:variable key="errorsOverrideSalesforce" value="#[false as Boolean]" />
+						<munit:variable key="errorsExtendSalesforce" value="#[false as Boolean]" />
+						<munit:variable key="errorNamespace" value="SALESFORCE" />
+						<munit:variable key="errorIdentifier" value="INVALID_INPUT" />
+					</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when No Extension" doc:id="fc85c31d-66c9-4bb1-a654-33d264f0344b" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="83f089a8-0358-4c51-a1ab-368c16af5375" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerSalesforce" doc:id="4e5ef208-26ca-4853-86ed-28e1a85b381e" name="ErrorHandlerSalesforce" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="f67ce35b-34bc-4ac8-8fd8-cd2d7f2b4779" actual="#[payload.Error.Message]" expected="The request data sent to Salesforce was invalid." message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<munit:test name="NO_OVERRIDES_EXTENSION_SALESFORCE_LIMIT_EXCEEDED" doc:id="e520ad18-3c44-4634-9edf-e64a75830e00" description="Test">
+			<munit:behavior>
+				<munit:set-event doc:name="Set Event" doc:id="2b8c8d31-9b5f-461d-b77c-cc637bdba6b4">
+				<munit:variables >
+					<munit:variable key="errorsOverrideSalesforce" value="#[false as Boolean]" />
+					<munit:variable key="errorsExtendSalesforce" value="#[true as Boolean]" />
+					<munit:variable key="errorNamespace" value="SALESFORCE" />
+					<munit:variable key="errorIdentifier" value="LIMIT_EXCEEDED" />
+					<munit:variable key="uniqueIdentifer" value="Limit_Exceeded" />
+					<munit:variable key="extendSalesforceErrorHandler" value="exampleExtensionFlow" />
+				</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock Flow Reference" doc:id="5dc865e9-431b-4aa7-b8e9-0ea5b815f6f3" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Invoke extension" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="8f12845a-772f-464d-a430-eb48900ce715" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-call flow="exampleExtensionFlow" />
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when No Extension" doc:id="eb7fb22e-b5d5-4f06-8bf7-429b4cf2437c" processor="email:send" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="1982734e-a297-4361-ab5c-274566c06dae" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</munit:behavior>
+			<munit:execution>
+				<flow-ref doc:name="Flow-ref to ErrorHandlerSalesforce" doc:id="b817ddd2-3705-499e-b37d-5d4934b8cb67" name="ErrorHandlerSalesforce" />
+			</munit:execution>
+			<munit:validation>
+				<munit-tools:assert-equals doc:name="Assert equals" doc:id="8038df4a-c029-49ce-9d9c-663438514071" actual="#[payload]" expected="The amount of requests to Salesforce has exceeded the api limit.: Limit_Exceeded" message="The error messages do not match" />
+			</munit:validation>
+		</munit:test>
+	<flow name="exampleExtensionFlow" doc:id="b032d464-20eb-41c3-ac8e-662f1e85e1d3" >
+		<set-payload value='#[payload ++ ": " ++ vars.uniqueIdentifer as String]' doc:name="Set Payload" doc:id="a05e19fb-5e10-45fc-a7c2-2c80a8a760e4" />
+	</flow>
+	<munit:test name="OVERRIDES_NO_EXTENSION_SALESFORCE_LIMIT_EXCEEDED" doc:id="46dce538-af2c-4821-8146-90e8ee7f660d" description="Test">
+			
+		<munit:behavior>
+			<munit:set-event doc:name="Set Event" doc:id="40127e02-4d8a-4c0b-bbb6-8a27f7e4cd2e">
+					<munit:variables>
+						<munit:variable key="errorsOverrideSalesforce" value="#[true as Boolean]" />
+						<munit:variable key="errorNamespace" value="SALESFORCE" />
+						<munit:variable key="errorIdentifier" value="LIMIT_EXCEEDED" />
+						<munit:variable key="uniqueIdentifer" value="Limit_Exceeded" />
+					</munit:variables>
+				</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock Flow Reference" doc:id="f4d71fc3-e5d6-44a7-a048-4ca959bc9232" processor="flow-ref">
+					
+					<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Call custom Salesforce error handler" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="1a9fb232-b68a-4e2d-a520-606947aab1d6" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-call flow="exampleCustomFlow" />
+				</munit-tools:mock-when>
+			</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to ErrorHandlerSalesforce" doc:id="f09efb32-3b67-47fe-ac7e-fab5ec99bcfc" name="ErrorHandlerSalesforce" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="d8a2cf84-a195-4ea0-a9b5-4172c99f29e3" actual="#[payload]" expected="Limit_Exceeded" message="The error messages do not match" />
+		</munit:validation>
+		</munit:test>
+	<flow name="exampleCustomFlow" doc:id="af1943a1-7052-4fac-82a2-d0dc5d9e464d" >
+		<set-payload value='#[vars.uniqueIdentifer as String]' doc:name="Set Payload" doc:id="253f73e6-7d1d-4d73-bca3-30e0b67d2a91" />
+	</flow>
+
+
+</mule>

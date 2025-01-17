@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+	<flow name="ErrorHandlerApiKit" doc:id="41b30ea8-6c38-4999-9672-121cb0ff5537" >
+		<logger level="DEBUG" doc:name="Debug Logger" doc:id="61e8718d-41fb-4e96-aad8-21623bd7c0ab" message="In ErrorHandlerApiKit"/>
+		<choice doc:name="Override ApiKit Error Handler?" doc:id="c90bec94-5207-4840-b387-ee22763f8fb7" >
+			<when expression="#[vars.errorsOverrideApikit == 'true']">
+				<logger level="DEBUG" doc:name="Override Message" doc:id="4245de10-90c8-4b87-8025-22f84f01372d" message="Override Default APIKIT Error Handler" />
+				<flow-ref doc:name="Call custom APIKIT error handler" doc:id="f836ba33-8f11-48dc-81a4-18383c4222ba" name="#[vars.customAPIKITErrorHandler]" />
+			</when>
+			<otherwise>
+				<ee:transform doc:name="Set error variables" doc:id="3aebd688-7916-4fb4-b6fe-3fcb6a314aad">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+Mule::p('errors.response.APIKIT.' ++ (vars.errorIdentifier default 'DEFAULT')) as String]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<choice doc:name="Extend Standard Apikit Error Handler?" doc:id="40db151c-1b18-4566-b431-84fd59bc54ee" >
+					<when expression="#[vars.errorsExtendApikit == 'true']">
+						<logger level="DEBUG" doc:name="Extend Message" doc:id="7b1bbc8c-901c-4e47-b20f-1141ce71d497" message="Extend Default APIKIT Error Handler" />
+						<flow-ref doc:name="Invoke extension" doc:id="a7199292-b780-4ae2-a1c2-cf25019f2049" name="#[vars.extendAPIKITErrorHandler]" />
+						<email:send doc:name="Send" doc:id="78277ed1-8106-4918-8503-ec6f30bea6e1" config-ref="Email_SMTP_Common_Error_Handler" fromAddress="#[vars.emailFromAdd]" subject="#[vars.errorErrorSubject]" toAddresses="#[vars.emailToAdd]" ccAddresses="#[vars.emailCCAdd]" >
+							<email:body contentType="text/plain" encoding="UTF-8" />
+							<email:attachments ><![CDATA[#[vars.emailAttachments]]]></email:attachments>
+						</email:send>
+					</when>
+					<otherwise >
+						<ee:transform doc:name="Set Error Object" doc:id="3ad0b5a6-dfca-4d5e-9fce-b4559ecd6eba">
+							<ee:message>
+								<ee:set-payload><![CDATA[output application/json
+---
+{
+	Error: {
+		"ErrorIdentifier": vars.errorNamespace as String default 'MULE' ++ ':' ++ vars.errorIdentifier as String default 'UNKNOWN',
+		"TimeStamp": now(),
+		"Message": payload,
+	}
+}]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+						<logger level="INFO" doc:name="Debug Logger" doc:id="61817c70-b1ec-423a-9138-70f1536c5b7b" message="Default APIKIT error"/>
+						<email:send doc:name="Send" doc:id="ce98082d-643b-41b9-a44f-43e6f32b5cf6" config-ref="Email_SMTP_Common_Error_Handler" fromAddress="#[vars.emailFromAdd]" subject="#[vars.errorErrorSubject]" toAddresses="#[vars.emailToAdd]" ccAddresses="#[vars.emailCCAdd]" >
+							<email:body contentType="text/plain" encoding="UTF-8" />
+							<email:attachments ><![CDATA[#[vars.emailAttachments]]]></email:attachments>
+						</email:send>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

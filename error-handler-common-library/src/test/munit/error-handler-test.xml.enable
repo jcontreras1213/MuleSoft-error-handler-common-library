@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+	<munit:config name="error-handler-test.xml" />
+	<sftp:config name="SFTP_Error_Connection" doc:name="SFTP Config" doc:id="8353cc75-6636-4df3-8d11-186dc6723d1b" >
+		<sftp:connection host="example.host" username="NotRealUser" password="Password" />
+	</sftp:config>
+	<munit:test name="error-mainErrorHandlerFlowTest" doc:id="d6c94023-dd41-4e38-8923-f0e3c95dbe3d" description="Test" expectedErrorType="EMAIL:SEND">
+		<munit:execution >
+			<email:send doc:name="Send" doc:id="8a42e910-df9d-4f55-8d12-ae51eff782c8" config-ref="Email_SMTP_Common_Error_Handler" toAddresses="#[vars.emailAddress]" />
+			<flow-ref doc:name="Flow-ref to error-mainErrorHandlerFlow" doc:id="e6fa7ad6-b64c-491b-b56b-d6e3b9ff43f8" name="error-mainErrorHandlerFlow"/>
+		</munit:execution>
+	</munit:test>
+	<munit:test name="error-handler-test-error-handler-before-errorTypeFlowTest" doc:id="c439a407-9923-4e85-b4e3-2fd94c361f92" description="Test" ignore="true">
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to error-handler-before-errorTypeFlow" doc:id="91dea38c-30b4-4e9c-9c62-5e7ed68e3083" name="error-handler-before-errorTypeFlow"/>
+		</munit:execution>
+	</munit:test>
+	<munit:test name="error-handler-test-error-handler-route-errorTypeFlowTest" doc:id="11c9a67d-a6b1-4687-8e54-db51caa3cf59" description="Test" ignore="true">
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to error-handler-route-errorTypeFlow" doc:id="ce1fbb56-24a6-4598-8dc8-b1322e4fe5ce" name="error-handler-route-errorTypeFlow"/>
+		</munit:execution>
+	</munit:test>
+	<munit:test name="error-handler-test-error-handler-after-errorTypeFlowTest" doc:id="0ff14efb-f6d3-427e-a6e0-c7df04a1442f" description="Test" ignore="true">
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to error-handler-after-errorTypeFlow" doc:id="019fe154-67f3-45d1-a285-c1c328378196" name="error-handler-after-errorTypeFlow"/>
+		</munit:execution>
+	</munit:test>
+	<munit:test name="error-handler-test-error-handler-override-errorFlowTest" doc:id="5c56f80e-ead2-4772-9e03-397921114b4b" description="Test" ignore="true">
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to error-handler-override-errorFlow" doc:id="37d52202-7218-4219-a7b1-c1ef27785a2e" name="error-handler-override-errorFlow"/>
+		</munit:execution>
+	</munit:test>
+
+</mule>

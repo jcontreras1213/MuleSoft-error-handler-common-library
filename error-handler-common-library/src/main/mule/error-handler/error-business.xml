@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+	
+	<flow name="ErrorHandlerBusiness" doc:id="6c6fbf16-31da-44a1-a55e-e8645c766946" >
+		<logger level="DEBUG" doc:name="Debug Logger" doc:id="4b00fc42-d957-43e6-8684-f231727e1939" message="In ErrorHandlerBusiness" />
+		<choice doc:name="Override Standard Business Error Handler?" doc:id="904a8884-a63c-4980-a7da-cacaba212393" >
+			<when expression="#[vars.errorsOverrideBusiness == true]">
+				<logger level="DEBUG" doc:name="Override Message" doc:id="a32744e5-b1a5-4d72-b098-2e608dac7ed6" message="Override Default SFTP Error Handler" />
+				<flow-ref doc:name="Call custom business error handler" doc:id="7f0dad54-14c1-4f21-b9cc-02fb32de9003" name="#[vars.customBusinessErrorHandler]"/>
+			</when>
+			<otherwise>
+				<ee:transform doc:name="Set error variables" doc:id="81825258-3bc5-4716-9716-a32ae05b47b5" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+Mule::p('errors.response.BUSINESS.' ++ (vars.errorIdentifier default 'DEFAULT')) as String]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<choice doc:name="Extend Standard Business Error Handler?" doc:id="490204d7-ce86-4131-9b2e-6f5df3d97ae7" >
+					<when expression="#[vars.errorsExtendBusiness == true]">
+						<logger level="DEBUG" doc:name="Extend Message" doc:id="d2fbf64d-f408-4c60-867c-760c0d40b19b" message="Extend Default Business Error Handler" />
+						<flow-ref doc:name="Invoke extension" doc:id="98e078bf-9fb6-4679-8bc1-2efa7f3b9e4e" name="#[vars.extendBusinessErrorHandler]"/>
+						<email:send doc:name="Send" doc:id="5fa30bb6-1b4a-410d-ae66-40aea8873662" config-ref="Email_SMTP_Common_Error_Handler" fromAddress="#[vars.emailFromAdd]" subject="#[vars.errorErrorSubject]" toAddresses="#[vars.emailToAdd]" ccAddresses="#[vars.emailCCAdd]" >
+							<email:body contentType="text/plain" encoding="UTF-8" />
+							<email:attachments ><![CDATA[#[vars.emailAttachments]]]></email:attachments>
+						</email:send>
+					</when>
+					<otherwise>
+						<ee:transform doc:name="Set Error Object" doc:id="bff076ac-5a58-47e0-b324-c4c6c6aa2af6">
+							<ee:message>
+								<ee:set-payload><![CDATA[output application/json
+---
+{
+	Error: {
+		"ErrorIdentifier": vars.errorNamespace as String default 'MULE' ++ ':' ++ vars.errorIdentifier as String default 'UNKNOWN',
+		"TimeStamp": now(),
+		"Message": payload,
+	}
+}]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+						<logger level="DEBUG" doc:name="Debug Logger" doc:id="f541c06c-13b9-46d3-bf2f-c950e19d452c" message="#[payload]" />
+						<email:send doc:name="Send" doc:id="7f640e65-3922-4a56-8428-029ff5067e18" config-ref="Email_SMTP_Common_Error_Handler" toAddresses="#[vars.emailToAdd]" fromAddress="#[vars.emailFromAdd]" subject="#[vars.errorErrorSubject]" ccAddresses="#[vars.emailCCAdd]">
+							<email:body contentType="text/plain" encoding="UTF-8" />
+							<email:attachments ><![CDATA[#[vars.emailAttachments]]]></email:attachments>
+						</email:send>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

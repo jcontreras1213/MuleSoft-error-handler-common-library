@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+	<flow name="ErrorHandlerSFTP" doc:id="054f5d1b-53eb-4b30-8136-fdd22b221daa" >
+		<logger level="DEBUG" doc:name="Debug Logger" doc:id="dc31bca9-fa99-406b-bff3-b725c1398cb3" message="In ErrorHandlerSFTP Flow" />
+		<choice doc:name="Override Standard SFTP Error Handler?" doc:id="c680c3ea-5f1b-45e0-890d-8d2886194c44" >
+			<when expression="#[vars.errorsOverrideSftp == true]">
+				<logger level="DEBUG" doc:name="Override Message" doc:id="385ed796-7405-4b1e-80f4-4281642e2d8a" message="Override Default SFTP Error Handler"/>
+				<flow-ref doc:name="Call custom sftp error handler" doc:id="39fcc1fa-5ff3-41b9-ab78-2640b3746bdd" name="#[vars.customSFTPErrorHandler]"/>
+			</when>
+			<otherwise>
+				<ee:transform doc:name="Set error variables" doc:id="4f20a85a-94c7-48fe-8e00-0844f2f3d1d0" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+Mule::p('errors.response.SFTP.' ++ (vars.errorIdentifier default 'DEFAULT')) as String]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<choice doc:name="Extend Standard SFTP Error Handler?" doc:id="d5739e42-1bf1-4868-9556-2ecb213d1f2b" >
+					<when expression="#[vars.errorsExtendSftp == true]">
+						<logger level="DEBUG" doc:name="Extend Message" doc:id="af91cccd-1b25-40d8-92be-ad47edc7584e" message="Extend Default SFTP Error Handler" />
+						<flow-ref doc:name="Invoke extension" doc:id="d9906423-867c-4051-b3c0-16dafedaa4de" name="#[vars.extendSFTPErrorHandler]"/>
+						<email:send doc:name="Send" doc:id="9eccb1ad-4d35-4c2e-ae08-732bb5081f0a" config-ref="Email_SMTP_Common_Error_Handler" fromAddress="#[vars.emailFromAdd]" subject="#[vars.errorErrorSubject]" toAddresses="#[vars.emailToAdd]" ccAddresses="#[vars.emailCCAdd]" >
+							<email:body contentType="text/plain" encoding="UTF-8" />
+							<email:attachments ><![CDATA[#[vars.emailAttachments]]]></email:attachments>
+						</email:send>
+					</when>
+					<otherwise>
+						<ee:transform doc:name="Set Error Object" doc:id="916c3943-1805-4b4a-80d6-5360ac74feb0">
+					<ee:message>
+						<ee:set-payload><![CDATA[output application/json
+---
+{
+	Error: {
+		"ErrorIdentifier": vars.errorNamespace as String default 'MULE' ++ ':' ++ vars.errorIdentifier as String default 'UNKNOWN',
+		"TimeStamp": now(),
+		"Message": payload,
+	}
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+						<logger level="DEBUG" doc:name="Debug Logger" doc:id="2fa38bf9-3fef-4e39-b21d-2b0e159537fc" message="#[payload.Error.Message]"/>
+						<email:send doc:name="Send" doc:id="cf216c75-148b-4ef3-9b80-e46e9642f060" config-ref="Email_SMTP_Common_Error_Handler" fromAddress="#[vars.emailFromAdd]" subject="#[vars.errorErrorSubject]" toAddresses="#[vars.emailToAdd]" ccAddresses="#[vars.emailCCAdd]" >
+							<email:body contentType="text/plain" encoding="UTF-8" />
+							<email:attachments ><![CDATA[#[vars.emailAttachments]]]></email:attachments>
+						</email:send>
+					</otherwise>
+				</choice>
+			</otherwise>
+		</choice>
+	</flow>	
+</mule>
